@@ -1,6 +1,6 @@
 {
   "name": "async-dependency-graph",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A dependency graph that can traverse asynchronous nodes.",
   "main": "dist/library.js",
   "types": "dist/library.d.js",
