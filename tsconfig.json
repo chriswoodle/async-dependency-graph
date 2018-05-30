@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        "allowUnreachableCode": false,
+        "declaration": true,
+        "moduleResolution": "node",
+        "noImplicitAny": true,
+        "noUnusedLocals": true,
+        "preserveConstEnums": true,
+        "target": "es6",
+        "module": "commonjs",
+        "inlineSourceMap": true,
+        "outDir": "dist",
+        "rootDir": "src",
+        "strict": true,
+        "pretty": true,
+        "lib": [
+            "es7"
+        ]
+    },
+    "exclude": [
+        "./example",
+        "./dist",
+        "**/*.spec.ts"
+      ]
+}
