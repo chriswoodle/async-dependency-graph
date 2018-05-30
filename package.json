@@ -1,6 +1,6 @@
 {
   "name": "async-dependency-graph",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A dependency graph that can traverse asynchronous nodes.",
   "main": "dist/library.js",
   "types": "dist/library.d.js",
@@ -13,6 +13,10 @@
     "tslint": "tslint -c tslint.json -t stylish 'src/**/*.ts' --force",
     "tslint-prod": "tslint -c tslint.json -t stylish 'src/**/*.ts'",
     "test": "mocha -r ts-node/register src/**/*.spec.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chriswoodle/async-dependency-graph.git"
   },
   "license": "MIT",
   "devDependencies": {
