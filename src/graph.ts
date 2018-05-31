@@ -94,6 +94,12 @@ export class Graph {
         return Promise.all(rootNodeNames.map((name) => visit(this.nodes[name])));
     }
 
+    public reset() {
+        for (const name in this.nodes) {
+            this.nodes[name].reset();
+        }
+    }
+
     public ls() {
         for (const name in this.nodes) {
             console.log(name);
@@ -154,5 +160,10 @@ export class Node {
     public setData(data: any) {
         this._data = data;
         this.signalDependenciesReady();
+    }
+
+    public reset() {
+        this._data = undefined;
+        this.mutex = undefined;
     }
 }
