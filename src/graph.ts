@@ -143,7 +143,9 @@ export class Node {
             // Only allow to _promise once
             if (this.locked === true) return;
             this.locked = true;
-            this._promise().then((data) => {
+            const promise = this._promise();
+            if (promise === undefined) throw new Error(`Node "${this._name}" has undefined promise.`);
+            promise.then((data) => {
                 this._data = data;
                 this.locked = false;
                 this.mutex!.ready();
