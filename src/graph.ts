@@ -150,6 +150,7 @@ export class Node {
                 this.locked = false;
                 this.mutex!.ready();
             }).catch((error) => {
+                this._data = null;
                 this.locked = false;
                 this.mutex!.ready(error);
             });

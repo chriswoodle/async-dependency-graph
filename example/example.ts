@@ -49,6 +49,9 @@ graph.addDependency('c', 'a'); // fetchC needs the data from fetchA
 
 graph.traverse().then(() => {
     console.log(new Date().toLocaleTimeString(), 'Traversal complete, all data ready');
+}).catch((error) => {
+    console.log('Error in traversal.');
+    console.log(error)
 });
 
 graph.getNode('a').awaitData().then((data)=> {
