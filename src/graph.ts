@@ -70,7 +70,9 @@ export class Graph {
      * Breadth first search.
      */
     public traverse() {
-        // Visiting a node recursively calls visit on each node's dependencies.
+        // Clear all node mutexes.
+        Object.keys(this.nodes).map(name => this.getNode(name).clearMutex());
+        // Visiting a node recursively calls visit on each node's dependents.
         const visit = (node: Node): Promise<any> => {
             // First await all dependencies
             return Promise.all(this.dependenciesOf(node.name).map((dependencyName) => this.nodes[dependencyName].awaitData()))
@@ -78,7 +80,7 @@ export class Graph {
                     node.signalDependenciesReady();
                     if (this.dependentsOf(node.name).length > 0) {
                         // Then recursively visit all dependents
-                        return Promise.all(this.dependentsOf(node.name).map((dependentName) => visit(this.nodes[dependentName])));
+                        return Promise.all(this.dependentsOf(node.name).map((dependentName) => visit(this.getNode(dependentName))));
                     } else {
                         // node has no dependents so await data
                         return node.awaitData();
@@ -92,6 +94,23 @@ export class Graph {
 
         // Start recursive traversal from root nodes.
         return Promise.all(rootNodeNames.map((name) => visit(this.nodes[name])));
+    }
+
+    /**
+     * Clears the value of a node and the values of dependent nodes
+     */
+    public clearNodeAndDependents(name: string) {
+        const node = this.getNode(name);
+        const visitAndClear = (node: Node): Promise<any> => {
+            if (node.hasData()) {
+                node.clearData();
+                return Promise.all(this.dependentsOf(node.name).map(dependentName => visitAndClear(this.getNode(dependentName))));
+            } else {
+                return Promise.resolve();
+            }
+
+        };
+        return visitAndClear(node);
     }
 
     public reset() {
@@ -166,7 +185,19 @@ export class Node {
     }
 
     public reset() {
-        this._data = undefined;
+        this.clearData();
+        this.clearMutex();
+    }
+
+    public clearMutex() {
         this.mutex = undefined;
+    }
+
+    public hasData() {
+        return this._data !== undefined;
+    }
+
+    public clearData() {
+        this._data = undefined;
     }
 }

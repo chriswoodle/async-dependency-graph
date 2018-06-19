@@ -75,7 +75,7 @@ describe('Graph tests', function () {
         graph.addDependency('d', 'c');
         graph.addDependency('c', 'a');
         graph.traverse().then(() => {
-            expect(output, `Output order incorrect.`).to.equal('acdb');
+            expect(output, `Output order`).to.equal('acdb');
             done();
         }).catch(done);
     });
@@ -116,7 +116,7 @@ describe('Graph tests', function () {
         graph.addDependency('d', 'c');
         graph.addDependency('d', 'b');
         graph.traverse().then(() => {
-            expect(output, `Output order incorrect.`).to.equal('acbd');
+            expect(output, `Output order`).to.equal('acbd');
             done();
         }).catch(done);
     });
@@ -158,6 +158,53 @@ describe('Graph tests', function () {
                 expect(data, `Data set with timeout.`).to.equal('some data b from external');
                 done();
             });
+        }).catch(done);
+    });
+
+    it('Create full graph (single root node), traverse async, reset node', function (done) {
+        this.slow(Infinity);
+        const graph = new Graph();
+        let output = '';
+        graph.addNode(new Node('a', () => new Promise((resolve, reject) => {
+            setTimeout(() => {
+                output += 'a';
+                resolve('some data a');
+            }, 1000);
+        })));
+        graph.addNode(new Node('b', () => new Promise((resolve, reject) => {
+            setTimeout(() => {
+                output += 'b';
+                resolve('some data b');
+            }, 4000);
+        })));
+        graph.addNode(new Node('c', () => new Promise((resolve, reject) => {
+            setTimeout(() => {
+                output += 'c';
+                resolve('some data c');
+            }, 500);
+        })));
+        graph.addNode(new Node('d', () => new Promise((resolve, reject) => {
+            setTimeout(() => {
+                output += 'd';
+                resolve('some data d');
+            }, 1000);
+        })));
+        graph.addDependency('b', 'a');
+        graph.addDependency('d', 'c');
+        graph.addDependency('c', 'a');
+        graph.traverse().then(() => {
+            expect(output, `Output order`).to.equal('acdb');
+            const data = graph.getNode('c')['_data'];
+            expect(data, 'Node is cleared').to.not.be.undefined;
+            return graph.clearNodeAndDependents('c');
+        }).then(() => {
+            const data = graph.getNode('c')['_data'];
+            expect(data, 'Node is not cleared').to.be.undefined;
+            return graph.traverse();
+        }).then(() => {
+            const data = graph.getNode('c')['_data'];
+            expect(data, 'Node is cleared').to.not.be.undefined;
+            done();
         }).catch(done);
     });
 });
