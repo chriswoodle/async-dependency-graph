@@ -43,6 +43,48 @@ describe('Graph tests', function () {
             done();
         }).catch(done);
     });
+    it('Await data before traverse should signal', (done) => {
+        const graph = new Graph();
+        const aData = 'some data a';
+        graph.addNode(new Node('a', () => new Promise((resolve, reject) => {
+            resolve(aData);
+        })));
+        graph.addNode(new Node('b', () => new Promise((resolve, reject) => {
+            resolve('some data b');
+        })));
+        graph.addNode(new Node('c', () => new Promise((resolve, reject) => {
+            resolve('some data c');
+        })));
+        graph.addDependency('b', 'a');
+        graph.addDependency('c', 'a');
+        graph.getNode('a').awaitData().then((data) => {
+            expect(data, `Awaited data`).to.equal(aData);
+            done();
+        }).catch(done);
+        graph.traverse().then(() => {
+        }).catch(done);
+    });
+    it('Await data after traverse should signal', (done) => {
+        const graph = new Graph();
+        const aData = 'some data a';
+        graph.addNode(new Node('a', () => new Promise((resolve, reject) => {
+            resolve(aData);
+        })));
+        graph.addNode(new Node('b', () => new Promise((resolve, reject) => {
+            resolve('some data b');
+        })));
+        graph.addNode(new Node('c', () => new Promise((resolve, reject) => {
+            resolve('some data c');
+        })));
+        graph.addDependency('b', 'a');
+        graph.addDependency('c', 'a');
+        graph.traverse().then(() => {
+        }).catch(done);
+        graph.getNode('a').awaitData().then((data) => {
+            expect(data, `Awaited data`).to.equal(aData);
+            done();
+        }).catch(done);
+    });
     it('Create full graph (single root node) and traverse async', function (done) {
         this.slow(Infinity);
         const graph = new Graph();

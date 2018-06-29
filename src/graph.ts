@@ -70,7 +70,7 @@ export class Graph {
      * Breadth first search.
      */
     public traverse() {
-        // Clear all node mutexes.
+        // Clear all complete node mutexes.
         Object.keys(this.nodes).map(name => this.getNode(name).clearMutex());
         // Visiting a node recursively calls visit on each node's dependents.
         const visit = (node: Node): Promise<any> => {
@@ -190,7 +190,8 @@ export class Node {
     }
 
     public clearMutex() {
-        this.mutex = undefined;
+        if (this.hasData())
+            this.mutex = undefined;
     }
 
     public hasData() {
