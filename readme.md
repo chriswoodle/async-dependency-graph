@@ -1,12 +1,16 @@
 # Async Dependency Graph
 
-A dependency graph that can traverse asynchronous nodes.
+[![NPM](https://nodei.co/npm/async-dependency-graph.png)](https://www.npmjs.com/package/async-dependency-graph)
 
-> Inspired by https://github.com/jriecken/dependency-graph
+![node](https://img.shields.io/npm/l/async-dependency-graph.svg?style=flat-square)
+
+A dependency graph that can traverse asynchronous nodes.
 
 ## About
 
-Designed for requesting dependent data in web apps. Each node can contain a promise that makes some asynchronous operation, like an http request.
+Designed for requesting dependent data in web apps (https://portal.droplit.io/). Each node can contain a promise that makes some asynchronous operation, like an http request. Angular friendly.
+
+> Inspired by https://github.com/jriecken/dependency-graph
 
 # Install
 
@@ -16,7 +20,7 @@ npm install async-dependency-graph
 
 # Usage
 
-```
+```js
 const graph = new Graph();
 
 graph.addNode(new Node('a', () => new Promise(...)));
