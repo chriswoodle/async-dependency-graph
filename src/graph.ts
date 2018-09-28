@@ -45,6 +45,7 @@ export class Graph {
     public addDependency(from: string, to: string) {
         if (!this.hasNode(from)) throw new Error(`Node does not exist: ${from}`);
         if (!this.hasNode(to)) throw new Error(`Node does not exist: ${to}`);
+        if(from === to) throw new Error(`Cannot add self dependency: ${to}`);
 
         if (!this.outgoingEdges[from].includes(to)) {
             this.outgoingEdges[from].push(to);
