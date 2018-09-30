@@ -1,6 +1,6 @@
 {
   "name": "async-dependency-graph",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "description": "A dependency graph that can traverse asynchronous nodes.",
   "main": "dist/library.js",
   "types": "dist/library.d.js",
@@ -20,7 +20,10 @@
   },
   "license": "MIT",
   "keywords": [
-    "graph", "async", "dependency", "tree"
+    "graph",
+    "async",
+    "dependency",
+    "tree"
   ],
   "devDependencies": {
     "@types/chai": "^4.1.3",

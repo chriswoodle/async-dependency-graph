@@ -6,7 +6,7 @@
         "noImplicitAny": true,
         "noUnusedLocals": true,
         "preserveConstEnums": true,
-        "target": "es6",
+        "target": "es5",
         "module": "commonjs",
         "inlineSourceMap": true,
         "outDir": "dist",
