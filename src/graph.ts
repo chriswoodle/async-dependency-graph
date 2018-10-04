@@ -1,9 +1,18 @@
 import { Mutex } from './mutex';
 
+/**
+ * Base dependency graph class.
+ */
 export class Graph {
     private nodes: { [name: string]: Node } = {};
     private outgoingEdges: { [name: string]: string[] } = {};
     private incomingEdges: { [name: string]: string[] } = {};
+    private optionalOutgoingEdges: { [name: string]: string[] } = {};
+
+    /**
+     * Add a node to the graph.
+     * @param node Node object.
+     */
     public addNode(node: Node) {
         if (this.hasNode(node.name)) throw new Error(`A node with the name of "${node.name}" already exists in the graph!`);
         this.nodes[node.name] = node;
@@ -11,6 +20,10 @@ export class Graph {
         this.incomingEdges[node.name] = [];
     }
 
+    /**
+     * Remove a node by name from the graph.
+     * @param name Node name.
+     */
     public removeNode(name: string) {
         if (!this.hasNode(name)) throw new Error(`A node with the name of "${name}" does not exist in the graph!`);
         delete this.nodes[name];
@@ -26,21 +39,35 @@ export class Graph {
         }
     }
 
+    /**
+     * Checks to see if the graph contains a Node by name.
+     * @param name Node name.
+     */
     public hasNode(name: string) {
         return this.nodes.hasOwnProperty(name);
     }
 
+    /**
+     * Returns the number of nodes in a graph.
+     */
     get size() {
         return Object.keys(this.nodes).length;
     }
 
+    /**
+     * Returns the Node instance given a node name.
+     * @param name Node name.
+     */
     public getNode(name: string) {
         if (this.hasNode(name))
             return this.nodes[name];
         throw new Error(`Node "${name}" not found!`);
     }
+
     /**
-     * "from" is dependent on "to"
+     *  Adds a node dependence. "from" is dependent on "to"
+     *  @param from Node name.
+     *  @param to  Node name.
      */
     public addDependency(from: string, to: string) {
         if (!this.hasNode(from)) throw new Error(`Node does not exist: ${from}`);
@@ -59,10 +86,18 @@ export class Graph {
 
     }
 
+    /**
+     * Get dependency node names for a Node by name. (Required nodes for this node to execute).
+     * @param name Node name.
+     */
     public dependenciesOf(name: string) {
         return this.outgoingEdges[name];
     }
 
+    /**
+     * Get dependents node names for a Node by name. (Nodes that require this node to complete).
+     * @param name Node name.
+     */
     public dependentsOf(name: string) {
         return this.incomingEdges[name];
     }
@@ -99,6 +134,7 @@ export class Graph {
 
     /**
      * Clears the value of a node and the values of dependent nodes
+     * @param name Node name.
      */
     public clearNodeAndDependents(name: string) {
         const node = this.getNode(name);
@@ -114,12 +150,18 @@ export class Graph {
         return visitAndClear(node);
     }
 
+    /**
+     * Resets the graph by resetting each node in the graph.
+     */
     public reset() {
         for (const name in this.nodes) {
             this.nodes[name].reset();
         }
     }
 
+    /**
+     * Prints graph nodes and node dependents.
+     */
     public ls() {
         for (const name in this.nodes) {
             console.log(name);
@@ -142,8 +184,10 @@ export class Node {
     get name() {
         return this._name;
     }
-
-    public awaitData(): Promise<any> {
+    /**
+     * Await data.
+     * @returns A `Promise<T | null>` that resolves when the node's data is ready.
+     */
         if (!this.mutex) {
             this.mutex = new Mutex(() => this._data !== undefined);
         }
@@ -185,6 +229,9 @@ export class Node {
         this.signalDependenciesReady();
     }
 
+    /**
+     * Resets node. Clears all node data and resets its mutex.
+     */
     public reset() {
         this.clearData();
         this.clearMutex();
