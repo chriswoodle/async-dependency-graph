@@ -8,7 +8,7 @@ A dependency graph that can traverse asynchronous nodes.
 
 ## About
 
-Designed for requesting dependent data in web apps (https://portal.droplit.io/). Each node can contain a promise that makes some asynchronous operation, like an http request. Angular friendly.
+Designed for requesting dependent data in web apps (https://portal.droplit.io/). Each node can contain a promise that makes some asynchronous operation, like an http request. Angular and Vue friendly.
 
 > Inspired by https://github.com/jriecken/dependency-graph
 
