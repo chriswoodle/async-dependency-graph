@@ -82,8 +82,24 @@ export class Graph {
         }
     }
 
+    /**
+     * Removes a node dependence. "from" is no longer dependent on "to".
+     * @param from Node name.
+     * @param to  Node name.
+     * @todo Test this function.
+     */
     public removeDependency(from: string, to: string) {
+        console.warn('removeDependency() has not been tested.');
+        if (!this.hasNode(from)) throw new Error(`Node does not exist: ${from}`);
+        if (!this.hasNode(to)) throw new Error(`Node does not exist: ${to}`);
+        if (from === to) throw new Error(`Cannot remove self dependency: ${to}`);
 
+        if (!this.outgoingEdges[from].includes(to)) {
+            this.outgoingEdges[from].splice(this.outgoingEdges[from].indexOf(to), 1);
+        }
+        if (!this.incomingEdges[to].includes(from)) {
+            this.incomingEdges[to].splice(this.incomingEdges[to].indexOf(to), 1);
+        }
     }
 
     /**
