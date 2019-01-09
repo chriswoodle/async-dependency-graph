@@ -93,25 +93,25 @@ describe('Graph tests', function () {
             setTimeout(() => {
                 output += 'a';
                 resolve('some data a');
-            }, 1000);
+            }, 100);
         })));
         graph.addNode(new Node('b', () => new Promise((resolve, reject) => {
             setTimeout(() => {
                 output += 'b';
                 resolve('some data b');
-            }, 4000);
+            }, 400);
         })));
         graph.addNode(new Node('c', () => new Promise((resolve, reject) => {
             setTimeout(() => {
                 output += 'c';
                 resolve('some data c');
-            }, 500);
+            }, 50);
         })));
         graph.addNode(new Node('d', () => new Promise((resolve, reject) => {
             setTimeout(() => {
                 output += 'd';
                 resolve('some data d');
-            }, 1000);
+            }, 100);
         })));
         graph.addDependency('b', 'a');
         graph.addDependency('d', 'c');
@@ -131,21 +131,21 @@ describe('Graph tests', function () {
             setTimeout(() => {
                 output += 'a';
                 resolve('some data a');
-            }, 1000);
+            }, 100);
         })));
         // Root
         graph.addNode(new Node('b', () => new Promise((resolve, reject) => {
             setTimeout(() => {
                 output += 'b';
                 resolve('some data b');
-            }, 4000);
+            }, 400);
         })));
 
         graph.addNode(new Node('c', () => new Promise((resolve, reject) => {
             setTimeout(() => {
                 output += 'c';
                 resolve('some data c');
-            }, 500);
+            }, 50);
         })));
         graph.addDependency('c', 'a');
 
@@ -153,7 +153,7 @@ describe('Graph tests', function () {
             setTimeout(() => {
                 output += 'd';
                 resolve('some data d');
-            }, 1000);
+            }, 100);
         })));
         graph.addDependency('d', 'c');
         graph.addDependency('d', 'b');
@@ -171,26 +171,26 @@ describe('Graph tests', function () {
             setTimeout(() => {
                 output += 'a';
                 resolve('some data a');
-            }, 1000);
+            }, 100);
         })));
 
         graph.addNode(new Node('b', () => new Promise((resolve, reject) => {
             setTimeout(() => {
                 output += 'b';
                 resolve('some data b');
-            }, 4000);
+            }, 400);
         })));
 
         graph.addNode(new Node('c', () => new Promise((resolve, reject) => {
             setTimeout(() => {
                 output += 'c';
                 resolve('some data c');
-            }, 1000);
+            }, 100);
         })));
 
         setTimeout(() => {
             graph.getNode('b').setData('some data b from external');
-        }, 2000);
+        }, 200);
 
         graph.addDependency('b', 'c');
         graph.addDependency('b', 'a');
@@ -211,25 +211,25 @@ describe('Graph tests', function () {
             setTimeout(() => {
                 output += 'a';
                 resolve('some data a');
-            }, 1000);
+            }, 100);
         })));
         graph.addNode(new Node('b', () => new Promise((resolve, reject) => {
             setTimeout(() => {
                 output += 'b';
                 resolve('some data b');
-            }, 4000);
+            }, 400);
         })));
         graph.addNode(new Node('c', () => new Promise((resolve, reject) => {
             setTimeout(() => {
                 output += 'c';
                 resolve('some data c');
-            }, 500);
+            }, 50);
         })));
         graph.addNode(new Node('d', () => new Promise((resolve, reject) => {
             setTimeout(() => {
                 output += 'd';
                 resolve('some data d');
-            }, 1000);
+            }, 100);
         })));
         graph.addDependency('b', 'a');
         graph.addDependency('d', 'c');
