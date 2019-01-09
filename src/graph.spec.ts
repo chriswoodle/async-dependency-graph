@@ -10,6 +10,13 @@ describe('Graph tests', function () {
         expect(graph.size, `New graph has empty size`).to.equal(0);
         done();
     });
+    it('Empty Graph should resolve', (done) => {
+        const graph = new Graph();
+        graph.traverse().then(() => {
+            done();
+        }).catch(done);
+    });
+
     it('Add node', (done) => {
         const graph = new Graph();
         graph.addNode(new Node('myNode', () => Promise.resolve()));
@@ -42,6 +49,18 @@ describe('Graph tests', function () {
             });
             done();
         }).catch(done);
+    });
+    it('Catch circular graph', (done) => {
+        const graph = new Graph();
+        graph.addNode(new Node('a', () => Promise.resolve()));
+        graph.addNode(new Node('b', () => Promise.resolve()));
+        graph.addDependency('a', 'b');
+        graph.addDependency('b', 'a');
+        graph.traverse().then(complete).catch(complete);
+        function complete(error?: any) {
+            expect(error).to.exist;
+            done();
+        }
     });
     it('Await data before traverse should signal', (done) => {
         const graph = new Graph();

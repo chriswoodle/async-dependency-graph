@@ -141,7 +141,7 @@ export class Graph {
 
         // Find nodes with no dependencies
         const rootNodeNames = Object.keys(this.nodes).filter((name) => this.dependenciesOf(name).length === 0);
-        if (rootNodeNames.length === 0) throw new Error('Cannot traverse graph due to no root node. The graph may be circular');
+        if (rootNodeNames.length === 0 && Object.keys(this.nodes).length > 0) return Promise.reject(new Error('The graph is circular. Cannot traverse graph due to no root node.'));
 
         // Start recursive traversal from root nodes.
         return Promise.all(rootNodeNames.map((name) => visit(this.nodes[name])));
