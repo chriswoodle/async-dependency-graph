@@ -7,7 +7,6 @@ export class Graph {
     private nodes: { [name: string]: Node } = {};
     private outgoingEdges: { [name: string]: string[] } = {};
     private incomingEdges: { [name: string]: string[] } = {};
-    private optionalOutgoingEdges: { [name: string]: string[] } = {};
 
     /**
      * Add a node to the graph.
@@ -204,6 +203,7 @@ export class Node {
      * Await data.
      * @returns A `Promise<T | null>` that resolves when the node's data is ready.
      */
+    public awaitData(): Promise<any> {
         if (!this.mutex) {
             this.mutex = new Mutex(() => this._data !== undefined);
         }
