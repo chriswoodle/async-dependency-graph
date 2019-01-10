@@ -4,6 +4,8 @@
 
 ![node](https://img.shields.io/npm/l/async-dependency-graph.svg?style=flat-square)
 
+![travis](https://travis-ci.org/chriswoodle/async-dependency-graph.svg?branch=master)
+
 A dependency graph that can traverse asynchronous nodes.
 
 ## About
