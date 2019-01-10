@@ -2,8 +2,7 @@
 
 [![NPM](https://nodei.co/npm/async-dependency-graph.png)](https://www.npmjs.com/package/async-dependency-graph)
 
-![node](https://img.shields.io/npm/l/async-dependency-graph.svg?style=flat-square)
-
+![node](https://img.shields.io/npm/l/async-dependency-graph.svg)
 ![travis](https://travis-ci.org/chriswoodle/async-dependency-graph.svg?branch=master)
 
 A dependency graph that can traverse asynchronous nodes.
