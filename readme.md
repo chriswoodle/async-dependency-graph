@@ -19,6 +19,10 @@ Designed for requesting dependent data in web apps (https://portal.droplit.io/).
 npm install async-dependency-graph 
 ```
 
+# Typedoc
+
+http://woodle.io/async-dependency-graph/
+
 # Usage
 
 ```js
