@@ -12,7 +12,8 @@
     "prepack": "npm run tslint-prod && npm run build",
     "tslint": "tslint -c tslint.json -t stylish 'src/**/*.ts' --force",
     "tslint-prod": "tslint -c tslint.json -t stylish 'src/**/*.ts'",
-    "test": "mocha -r ts-node/register src/**/*.spec.ts"
+    "test": "mocha -r ts-node/register src/**/*.spec.ts",
+    "doc": "typedoc --tsconfig ./tsconfig.json ./src"
   },
   "repository": {
     "type": "git",
@@ -34,6 +35,7 @@
     "source-map-support": "^0.5.6",
     "ts-node": "^6.0.3",
     "tslint": "^5.10.0",
+    "typedoc": "^0.14.2",
     "typescript": "^2.8.3"
   }
 }
