@@ -23,7 +23,6 @@
         "**/*.spec.ts"
     ],
     "typedocOptions": {
-        "mode": "file",
         "out": "docs",
         "exclude": "./node_modules/**,./examples/**/*.ts",
         "excludePrivate": true
