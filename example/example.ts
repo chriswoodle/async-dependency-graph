@@ -1,68 +1,57 @@
 import { Graph, Node } from '../';
 
-console.log(new Date().toLocaleTimeString(), 'Starting...');
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-const graph = new Graph();
-const fetchA = () => {
-    return new Promise((resolve, reject) => {
-        setTimeout(() => {
-            console.log(new Date().toLocaleTimeString(), 'got some data "A"');
-            resolve('some data a');
-        }, 2000);
-    });
-};
-graph.addNode(new Node('a', fetchA));
+(async () => {
+    console.log(new Date().toLocaleTimeString(), 'Starting...');
 
-const fetchB = () => {
-    return new Promise((resolve, reject) => {
-        setTimeout(() => {
-            console.log(new Date().toLocaleTimeString(), 'got some data "B"');
-            resolve('some data b');
-        }, 4000);
-    });
-};
-graph.addNode(new Node('b', fetchB));
+    const graph = new Graph();
+    const fetchA = async () => {
+        await delay(2000);
+        console.log(new Date().toLocaleTimeString(), 'got some data "A"');
+        return 'some data a';
+    };
+    const a = new Node(fetchA, { name: 'a' });
 
-const fetchC = () => {
-    return new Promise((resolve, reject) => {
-        setTimeout(() => {
-            console.log(new Date().toLocaleTimeString(), 'got some data "C"');
-            resolve('some data c');
-        }, 1000);
-    });
-};
-graph.addNode(new Node('c', fetchC));
+    const fetchB = async () => {
+        await delay(4000);
+        console.log(new Date().toLocaleTimeString(), 'got some data "B"');
+        return 'some data b';
+    };
+    const b = new Node(fetchB, { name: 'b' });
 
-const fetchD = () => {
-    return new Promise((resolve, reject) => {
-        setTimeout(() => {
-            console.log(new Date().toLocaleTimeString(), 'got some data "D"');
-            resolve('some data D');
-        }, 1000);
-    });
-};
-graph.addNode(new Node('d', fetchD));
+    const fetchC = async () => {
+        await delay(1000);
+        console.log(new Date().toLocaleTimeString(), 'got some data "C"');
+        return 'some data c';
+    };
+    const c = new Node(fetchC, { name: 'c' });
 
-graph.addDependency('b', 'a'); // fetchB needs the data from fetchA
-graph.addDependency('d', 'c'); // fetchD needs the data from fetchC
-graph.addDependency('c', 'a'); // fetchC needs the data from fetchA
+    const fetchD = async () => {
+        await delay(1000);
+        console.log(new Date().toLocaleTimeString(), 'got some data "D"');
+        return 'some data D';
+    };
+    const d = new Node(fetchD, { name: 'd' });
 
-graph.traverse().then(() => {
-    console.log(new Date().toLocaleTimeString(), 'Traversal complete, all data ready');
-}).catch((error) => {
-    console.log('Error in traversal.');
-    console.log(error)
-});
+    graph.addDependency(b, a); // fetchB needs the data from fetchA
+    graph.addDependency(d, c); // fetchD needs the data from fetchC
+    graph.addDependency(c, a); // fetchC needs the data from fetchA
 
-graph.getNode('a').awaitData().then((data)=> {
-    console.log(data);
-});
-graph.getNode('b').awaitData().then((data)=> {
-    console.log(data);
-});
-graph.getNode('c').awaitData().then((data)=> {
-    console.log(data);
-});
-graph.getNode('d').awaitData().then((data)=> {
-    console.log(data);
-});
+    try {
+        await graph.traverse();
+        console.log(new Date().toLocaleTimeString(), 'Traversal complete, all data ready');
+    } catch (error) {
+        console.log('Error in traversal.');
+        console.log(error);
+    }
+
+    const dataA = await a.data();
+    console.log(dataA);
+    const dataB = await b.data();
+    console.log(dataB);
+    const dataC = await c.data();
+    console.log(dataC);
+    const dataD = await d.data();
+    console.log(dataD);
+})();

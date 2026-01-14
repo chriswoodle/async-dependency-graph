@@ -4,7 +4,6 @@
         "declaration": true,
         "moduleResolution": "node",
         "noImplicitAny": true,
-        "noUnusedLocals": true,
         "preserveConstEnums": true,
         "target": "es5",
         "module": "commonjs",
@@ -14,7 +13,8 @@
         "strict": true,
         "pretty": true,
         "lib": [
-            "es7"
+            "es7",
+            "dom"
         ]
     },
     "exclude": [

@@ -1,4 +1,33 @@
-node_modules
-dist
+# MacOS
+.DS_Store
+.AppleDouble
+.LSOverride
 
-.idea
+# Yarn
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+!.yarn/versions
+.pnp.*
+
+# Dependency directory
+node_modules
+
+# NPM files
+package-lock.json
+
+# API keys and secrets
+.env
+
+# Build output
+dist
+tsconfig.tsbuildinfo
+
+# Coverage reports
+coverage
+
+# Generated schemas
+schema.gql
+spec.json
+
+*.tgz

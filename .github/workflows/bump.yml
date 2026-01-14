@@ -1,0 +1,40 @@
+name: Bump
+
+permissions:
+  contents: write
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  bump:
+    name: Bump packages
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🏗 Setup repo
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: 📦 Enable Corepack
+        run: corepack enable
+
+      - name: 🏗 Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: yarn
+
+      - name: 📦 Install dependencies
+        run: yarn install --immutable
+
+      - name: 🏗️ Verify Build
+        run: yarn build
+
+      - name: 🤜 Bump Please
+        uses: chriswoodle/bump-please-action@v1.2.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}

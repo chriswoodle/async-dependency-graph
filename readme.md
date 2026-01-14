@@ -3,20 +3,19 @@
 [![NPM](https://nodei.co/npm/async-dependency-graph.png)](https://www.npmjs.com/package/async-dependency-graph)
 
 ![node](https://img.shields.io/npm/l/async-dependency-graph.svg)
-![travis](https://travis-ci.org/chriswoodle/async-dependency-graph.svg?branch=master)
 
 A dependency graph that can traverse asynchronous nodes.
 
 ## About
 
-Designed for requesting dependent data in web apps (https://portal.droplit.io/). Each node can contain a promise that makes some asynchronous operation, like an http request. Angular and Vue friendly.
+Designed for requesting dependent data in web apps. Each node can contain an async function or promise that makes some asynchronous operation, like an http request.
 
 > Inspired by https://github.com/jriecken/dependency-graph
 
 # Install
 
-```
-npm install async-dependency-graph 
+```shell
+yarn add async-dependency-graph 
 ```
 
 # Typedoc
@@ -25,56 +24,130 @@ http://woodle.io/async-dependency-graph/
 
 # Usage
 
-```js
+```ts
+import { Graph, Node } from 'async-dependency-graph';
+
+// Define async functions for each node
+const fetchDataA = async () => {
+    // Some async operation, e.g., http request
+    return 'some data a';
+};
+
+const fetchDataB = async () => {
+    // ...
+    return 'some data b';
+};
+
+const fetchDataC = async () => {
+    // ...
+    return 'some data c';
+};
+
+const fetchDataD = async () => {
+    // ...
+    return 'some data d';
+};
+
 const graph = new Graph();
 
-graph.addNode(new Node('a', () => new Promise(...)));
-graph.addNode(new Node('b', () => new Promise(...)));
-graph.addNode(new Node('c', () => new Promise(...)));
-graph.addNode(new Node('d', () => new Promise(...)));
+// Create nodes with their async functions
+const a = new Node(fetchDataA, { name: 'a' });
+const b = new Node(fetchDataB, { name: 'b' });
+const c = new Node(fetchDataC, { name: 'c' });
+const d = new Node(fetchDataD, { name: 'd' });
 
-graph.addDependency('b', 'a'); // b needs the data from a
-graph.addDependency('d', 'c'); // d needs the data from c
-graph.addDependency('c', 'a'); // c needs the data from a
+// Define dependencies: b depends on a, d depends on c, c depends on a
+/**
+ * Graph structure: a, b: [a], c: [a], d: [c]
+ * (b and c depend on a, d depends on c)
+ */
+graph.addDependency(b, a); // b depends on a
+graph.addDependency(d, c); // d depends on c
+graph.addDependency(c, a); // c depends on a
 
-graph.traverse().then(() => {
-   // all nodes completed in order of dependence, in parallel when possible.
-});
-
-graph.getNode('a').awaitData().then((data)=> {
-    console.log(data);
-});
-graph.getNode('b').awaitData().then((data)=> {
-    console.log(data);
-});
-graph.getNode('c').awaitData().then((data)=> {
-    console.log(data);
-});
-graph.getNode('d').awaitData().then((data)=> {
-    console.log(data);
-});
+// Traverse the graph - nodes complete in order of dependence, in parallel when possible
+await graph.traverse();
+        
+// Get the resolved data
+const dataA = await a.data();
+const dataB = await b.data();
+const dataC = await c.data();
+const dataD = await d.data();
+        
+console.log(dataA, dataB, dataC, dataD);
 ```
-# Example 
 
-Run the example
+### Accessing Child Node Data
+
+Parent nodes can access their dependency (child) node data:
+
+```ts
+const child = new Node(async () => {
+    return { value: 42 };
+}, { name: 'child' });
+
+const parent = new Node(async () => {
+    // Access child's data
+    const childData = await child.data();
+    return {
+        parentValue: 100,
+        childValue: childData.value
+    };
+}, { name: 'parent' });
+
+graph.addDependency(parent, child);
+await graph.traverse();
+
+const parentData = await parent.data();
+console.log(parentData); // { parentValue: 100, childValue: 42 }
 ```
-node -r ts-node/register example/example.ts
-```
+
+## API Overview
+
+### Graph
+
+- `addDependency(from: Node, to: Node)` - Adds a dependency where `from` depends on `to`.
+- `removeDependency(from: Node, to: Node)` - Removes a dependency relationship.
+- `removeNode(node: Node)` - Removes a node and all its dependencies from the graph.
+- `traverse()` - Traverses the graph, executing nodes in dependency order.
+- `dependenciesOf(node: Node)` - Returns an array of nodes that the given node depends on.
+- `dependentsOf(node: Node)` - Returns an array of nodes that depend on the given node.
+- `hasNode(node: Node)` - Checks if a node exists in the graph.
+- `size` - Returns the number of nodes in the graph.
+- `reset()` - Resets all nodes in the graph.
+- `clearNodeAndDependents(node: Node)` - Clears a node and all its dependents.
+
+### Node
+
+- `new Node(promise: () => Promise<any>, options?: NodeOptions)` - Creates a new node with an async function.
+- `data()` - Returns a Promise that resolves when the node's data is ready.
+- `setData(data: any)` - Sets data directly on the node.
+- `reset()` - Resets the node, clearing its data and mutex.
+- `hasData()` - Returns true if the node has data.
+- `clearData()` - Clears the node's data.
+- `clearMutex()` - Clears the node's mutex.
 
 # Contributing
 
 PR's welcome.
 
+## Setup
+```shell
+yarn install
+# for vscode
+yarn dlx @yarnpkg/sdks vscode
+```
+
 ## Building
 
-```
-npm run build
+```shell
+yarn build
 ```
 
 ## Testing
 
-```
-npm test
+```shell
+yarn test
 ```
 
 # License

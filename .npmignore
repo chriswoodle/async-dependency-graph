@@ -2,5 +2,13 @@ node_modules/
 src/
 docs/
 
-tsconfig.json
-tslint.json
+.vscode/
+.yarn/
+
+bump-please-config.json
+
+tsconfig*
+
+*.tgz
+coverage
+example

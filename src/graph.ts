@@ -1,176 +1,178 @@
-import { Mutex } from './mutex';
+import { Node } from './node';
 
 /**
  * Base dependency graph class.
  */
 export class Graph {
-    private nodes: { [name: string]: Node } = {};
-    private outgoingEdges: { [name: string]: string[] } = {};
-    private incomingEdges: { [name: string]: string[] } = {};
+    private nodes: Set<Node> = new Set();
+    private outgoingEdges: Map<Node, Node[]> = new Map();
+    private incomingEdges: Map<Node, Node[]> = new Map();
 
     /**
      * Add a node to the graph.
      * @param node Node object.
      */
-    public addNode(node: Node) {
-        if (this.hasNode(node.name)) throw new Error(`A node with the name of "${node.name}" already exists in the graph!`);
-        this.nodes[node.name] = node;
-        this.outgoingEdges[node.name] = [];
-        this.incomingEdges[node.name] = [];
-    }
-
-    /**
-     * Remove a node by name from the graph.
-     * @param name Node name.
-     */
-    public removeNode(name: string) {
-        if (!this.hasNode(name)) throw new Error(`A node with the name of "${name}" does not exist in the graph!`);
-        delete this.nodes[name];
-        delete this.outgoingEdges[name];
-        delete this.incomingEdges[name];
-        for (const dependent in this.incomingEdges) {
-            if (this.incomingEdges[dependent].includes(name))
-                this.incomingEdges[dependent].splice(dependent.indexOf(name), 1);
-        }
-        for (const dependency in this.outgoingEdges) {
-            if (this.outgoingEdges[dependency].includes(name))
-                this.outgoingEdges[dependency].splice(dependency.indexOf(name), 1);
+    private ensureNode(node: Node) {
+        if (!this.nodes.has(node)) {
+            this.nodes.add(node);
+            this.outgoingEdges.set(node, []);
+            this.incomingEdges.set(node, []);
         }
     }
 
     /**
-     * Checks to see if the graph contains a Node by name.
-     * @param name Node name.
+     * Remove a node from the graph.
+     * @param node Node instance.
      */
-    public hasNode(name: string) {
-        return this.nodes.hasOwnProperty(name);
+    public removeNode(node: Node) {
+        if (!this.nodes.has(node)) throw new Error(`Node does not exist in the graph!`);
+        this.nodes.delete(node);
+        this.outgoingEdges.delete(node);
+        this.incomingEdges.delete(node);
+        for (const dependent of Array.from(this.incomingEdges.keys())) {
+            const edges = this.incomingEdges.get(dependent)!;
+            const index = edges.indexOf(node);
+            if (index !== -1) {
+                edges.splice(index, 1);
+            }
+        }
+        for (const dependency of Array.from(this.outgoingEdges.keys())) {
+            const edges = this.outgoingEdges.get(dependency)!;
+            const index = edges.indexOf(node);
+            if (index !== -1) {
+                edges.splice(index, 1);
+            }
+        }
+    }
+
+    /**
+     * Checks to see if the graph contains a Node.
+     * @param node Node instance.
+     */
+    public hasNode(node: Node) {
+        return this.nodes.has(node);
     }
 
     /**
      * Returns the number of nodes in a graph.
      */
     get size() {
-        return Object.keys(this.nodes).length;
-    }
-
-    /**
-     * Returns the Node instance given a node name.
-     * @param name Node name.
-     */
-    public getNode(name: string) {
-        if (this.hasNode(name))
-            return this.nodes[name];
-        throw new Error(`Node "${name}" not found!`);
+        return this.nodes.size;
     }
 
     /**
      *  Adds a node dependence. "from" is dependent on "to"
-     *  @param from Node name.
-     *  @param to  Node name.
+     *  @param from Node instance.
+     *  @param to  Node instance.
      */
-    public addDependency(from: string, to: string) {
-        if (!this.hasNode(from)) throw new Error(`Node does not exist: ${from}`);
-        if (!this.hasNode(to)) throw new Error(`Node does not exist: ${to}`);
-        if (from === to) throw new Error(`Cannot add self dependency: ${to}`);
+    public addDependency(from: Node, to: Node) {
+        if (from === to) throw new Error(`Cannot add self dependency`);
 
-        if (!this.outgoingEdges[from].includes(to)) {
-            this.outgoingEdges[from].push(to);
+        this.ensureNode(from);
+        this.ensureNode(to);
+
+        const outgoing = this.outgoingEdges.get(from)!;
+        if (!outgoing.includes(to)) {
+            outgoing.push(to);
         }
-        if (!this.incomingEdges[to].includes(from)) {
-            this.incomingEdges[to].push(from);
+        const incoming = this.incomingEdges.get(to)!;
+        if (!incoming.includes(from)) {
+            incoming.push(from);
         }
     }
 
     /**
      * Removes a node dependence. "from" is no longer dependent on "to".
-     * @param from Node name.
-     * @param to  Node name.
+     * @param from Node instance.
+     * @param to  Node instance.
      * @todo Test this function.
      */
-    public removeDependency(from: string, to: string) {
-        console.warn('removeDependency() has not been tested.');
-        if (!this.hasNode(from)) throw new Error(`Node does not exist: ${from}`);
-        if (!this.hasNode(to)) throw new Error(`Node does not exist: ${to}`);
-        if (from === to) throw new Error(`Cannot remove self dependency: ${to}`);
+    public removeDependency(from: Node, to: Node) {
+        if (!this.hasNode(from)) throw new Error(`Node does not exist: ${from.name}`);
+        if (!this.hasNode(to)) {
+            // Dependency is not in the graph, so do nothing
+            return;
+        };
+        if (from === to) throw new Error(`Cannot remove self dependency`);
 
-        if (!this.outgoingEdges[from].includes(to)) {
-            this.outgoingEdges[from].splice(this.outgoingEdges[from].indexOf(to), 1);
+        const outgoing = this.outgoingEdges.get(from)!;
+        const outgoingIndex = outgoing.indexOf(to);
+        if (outgoingIndex !== -1) {
+            outgoing.splice(outgoingIndex, 1);
         }
-        if (!this.incomingEdges[to].includes(from)) {
-            this.incomingEdges[to].splice(this.incomingEdges[to].indexOf(to), 1);
+        const incoming = this.incomingEdges.get(to)!;
+        const incomingIndex = incoming.indexOf(from);
+        if (incomingIndex !== -1) {
+            incoming.splice(incomingIndex, 1);
         }
     }
 
     /**
-     * Get dependency node names for a Node by name. (Required nodes for this node to execute).
-     * @param name Node name.
+     * Get dependency nodes for a Node. (Required nodes for this node to execute).
+     * @param node Node instance.
      */
-    public dependenciesOf(name: string) {
-        return this.outgoingEdges[name];
+    public dependenciesOf(node: Node) {
+        return this.outgoingEdges.get(node) || [];
     }
 
     /**
-     * Get dependents node names for a Node by name. (Nodes that require this node to complete).
-     * @param name Node name.
+     * Get dependents nodes for a Node. (Nodes that require this node to complete).
+     * @param node Node instance.
      */
-    public dependentsOf(name: string) {
-        return this.incomingEdges[name];
+    public dependentsOf(node: Node) {
+        return this.incomingEdges.get(node) || [];
     }
 
     /**
      * Breadth first search.
      */
-    public traverse() {
+    public async traverse(): Promise<void> {
         // Clear all complete node mutexes.
-        Object.keys(this.nodes).map(name => this.getNode(name).clearMutex());
+        Array.from(this.nodes).forEach(node => node.clearMutex());
         // Visiting a node recursively calls visit on each node's dependents.
-        const visit = (node: Node): Promise<any> => {
+        const visit = async (node: Node): Promise<void> => {
             // First await all dependencies
-            return Promise.all(this.dependenciesOf(node.name).map((dependencyName) => this.nodes[dependencyName].awaitData()))
-                .then(() => {
-                    node.signalDependenciesReady();
-                    if (this.dependentsOf(node.name).length > 0) {
-                        // Then recursively visit all dependents
-                        return Promise.all(this.dependentsOf(node.name).map((dependentName) => visit(this.getNode(dependentName))));
-                    } else {
-                        // node has no dependents so await data
-                        return node.awaitData();
-                    }
-                });
+            await Promise.all(this.dependenciesOf(node).map((dependency) => dependency.data()));
+            node.signalDependenciesReady();
+            if (this.dependentsOf(node).length > 0) {
+                // Then recursively visit all dependents
+                await Promise.all(this.dependentsOf(node).map((dependent) => visit(dependent)));
+            } else {
+                // node has no dependents so await data
+                await node.data();
+            }
         };
 
         // Find nodes with no dependencies
-        const rootNodeNames = Object.keys(this.nodes).filter((name) => this.dependenciesOf(name).length === 0);
-        if (rootNodeNames.length === 0 && Object.keys(this.nodes).length > 0) return Promise.reject(new Error('The graph is circular. Cannot traverse graph due to no root node.'));
+        const rootNodes = Array.from(this.nodes).filter((node) => this.dependenciesOf(node).length === 0);
+        if (rootNodes.length === 0 && this.nodes.size > 0) {
+            throw new Error('The graph is circular. Cannot traverse graph due to no root node.');
+        }
 
         // Start recursive traversal from root nodes.
-        return Promise.all(rootNodeNames.map((name) => visit(this.nodes[name])));
+        await Promise.all(rootNodes.map((node) => visit(node)));
     }
 
     /**
      * Clears the value of a node and the values of dependent nodes
-     * @param name Node name.
+     * @param node Node instance.
      */
-    public clearNodeAndDependents(name: string) {
-        const node = this.getNode(name);
-        const visitAndClear = (node: Node): Promise<any> => {
+    public async clearNodeAndDependents(node: Node): Promise<void> {
+        const visitAndClear = async (node: Node): Promise<void> => {
             if (node.hasData()) {
                 node.clearData();
-                return Promise.all(this.dependentsOf(node.name).map(dependentName => visitAndClear(this.getNode(dependentName))));
-            } else {
-                return Promise.resolve();
+                await Promise.all(this.dependentsOf(node).map(dependent => visitAndClear(dependent)));
             }
-
         };
-        return visitAndClear(node);
+        await visitAndClear(node);
     }
 
     /**
      * Resets the graph by resetting each node in the graph.
      */
     public reset() {
-        for (const name in this.nodes) {
-            this.nodes[name].reset();
+        for (const node of Array.from(this.nodes)) {
+            node.reset();
         }
     }
 
@@ -178,91 +180,9 @@ export class Graph {
      * Prints graph nodes and node dependents.
      */
     public ls() {
-        for (const name in this.nodes) {
-            console.log(name);
-            console.log(this.dependentsOf(name));
+        for (const node of Array.from(this.nodes)) {
+            console.log(node.name || 'Unnamed Node');
+            console.log(this.dependentsOf(node));
         }
-    }
-}
-
-export class Node {
-    private _name: string;
-    private _promise: () => Promise<any>;
-    private _data?: any;
-    private mutex?: Mutex;
-    private locked = false;
-    constructor(name: string, promise: () => Promise<any>) {
-        this._name = name;
-        this._promise = promise;
-    }
-
-    get name() {
-        return this._name;
-    }
-    /**
-     * Await data.
-     * @returns A `Promise<T | null>` that resolves when the node's data is ready.
-     */
-    public awaitData(): Promise<any> {
-        if (!this.mutex) {
-            this.mutex = new Mutex(() => this._data !== undefined);
-        }
-        return new Promise((resolve, reject) => {
-            this.mutex!.await((error) => {
-                if (error) return reject(error);
-                resolve(this._data);
-            });
-        });
-    }
-
-    public signalDependenciesReady(): void {
-        if (!this.mutex) {
-            this.mutex = new Mutex(() => this._data !== undefined);
-        }
-        if (this._data === undefined) {
-            // Only allow to _promise once
-            if (this.locked === true) return;
-            this.locked = true;
-            const promise = this._promise();
-            if (promise === undefined) throw new Error(`Node "${this._name}" has undefined promise.`);
-            promise.then((data) => {
-                this._data = data;
-                this.locked = false;
-                this.mutex!.ready();
-            }).catch((error) => {
-                this._data = null;
-                this.locked = false;
-                this.mutex!.ready(error);
-            });
-        } else {
-            // Allow _data to be set externally from promise
-            this.mutex!.ready();
-        }
-    }
-
-    public setData(data: any) {
-        this._data = data;
-        this.signalDependenciesReady();
-    }
-
-    /**
-     * Resets node. Clears all node data and resets its mutex.
-     */
-    public reset() {
-        this.clearData();
-        this.clearMutex();
-    }
-
-    public clearMutex() {
-        if (this.hasData())
-            this.mutex = undefined;
-    }
-
-    public hasData() {
-        return this._data !== undefined;
-    }
-
-    public clearData() {
-        this._data = undefined;
     }
 }
