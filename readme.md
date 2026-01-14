@@ -18,10 +18,6 @@ Designed for requesting dependent data in web apps. Each node can contain an asy
 yarn add async-dependency-graph 
 ```
 
-# Typedoc
-
-http://woodle.io/async-dependency-graph/
-
 # Usage
 
 ```ts
